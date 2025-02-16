@@ -28,4 +28,5 @@ public class UserDto {
     // ROLE_USER, ROLE_ADMIN, ROLE_SELLER
 
     private String address;
+
 }

@@ -1,6 +1,7 @@
 package org.example.msasbuser.controller;
 
 import org.example.msasbuser.dto.UserDto;
+import org.example.msasbuser.jwt.JwtTokenProvider;
 import org.example.msasbuser.service.AddressService;
 import org.example.msasbuser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private AddressService addressService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     // 에코테스트
     @GetMapping("/echo")
@@ -67,4 +70,20 @@ public class UserController {
             return ResponseEntity.status(500).body("서버측 내부 오류 : " + e.getMessage());
         }
     }
+
+    @GetMapping("/mypage")
+    public ResponseEntity<UserDto> getMyPage(@RequestHeader("Authorization") String accessToken) {
+        // JWT에서 이메일 추출 (Bearer 체크 X)
+        String email = jwtTokenProvider.extractEmail(accessToken);
+        System.out.println("현재 로그인한 사용자 이메일: " + email);
+
+        if (email == null) {
+            return ResponseEntity.status(403).build(); // 인증 실패
+        }
+
+        // 이메일로 유저 정보 조회
+        UserDto userDto = userService.getUserInfoByEmail(email);
+        return ResponseEntity.ok(userDto);
+    }
+
 }
