@@ -1,6 +1,7 @@
 package org.example.msasbuser.service;
 
 import org.example.msasbuser.dto.UserDto;
+import org.example.msasbuser.dto.UserUpdateDto;
 import org.example.msasbuser.entity.UserEntity;
 import org.example.msasbuser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,5 +113,18 @@ public class UserService {
         userRepository.save(userEntity);
         // 5. 레디스 토큰 삭제
         redisTemplate.delete(token);
+    }
+
+    public UserDto getUserInfoByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return new UserDto(
+                user.getEmail(),
+                null, // 비밀번호는 노출 안 함
+                user.getUsername(),
+                user.getRoles(),
+                user.getAddress()
+        );
     }
 }
