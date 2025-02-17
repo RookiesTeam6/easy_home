@@ -131,7 +131,7 @@ jobs:
             ls -l /home/ubuntu/demo/home/redis-db-test/build/libs/
             ls -l /home/ubuntu/demo/home/easy-home-vote/build/libs/
             ls -l /home/ubuntu/demo/home/easy-home-survey/build/libs/
-            ls -l /home/ubuntu/demo/chat-service/build/libs/
+            ls -l /home/ubuntu/demo/home/chat-service/build/libs/
 
   
 
@@ -178,8 +178,6 @@ jobs:
             mv /home/ubuntu/demo/home/chat-service/build/libs/chat-service-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/chat-service-0.0.1-SNAPSHOT.jar
             cd /home/ubuntu/server/easy_home
             
-            
-            
             # 깃 시크릿 사용
             export EC2_HOST=${{ secrets.EC2_HOST }}
             export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
@@ -213,6 +211,3 @@ jobs:
             nohup java -jar easy-home-survey-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar easy-home-vote-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar chat-service-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
-            
-
-
