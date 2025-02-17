@@ -37,7 +37,8 @@ public class AuthService {
 
             // 4. 활성화 여부 점검 -> 비활성화 -> 점검 요청 후 반려 (생략)
             // 5. 토큰 발급 (엑세스 신규, 리플레시 (레디스 검색후 없으면(7일이후)-> 발급))
-            String accessToken = jwtTokenProvider.createAccessToken(email, password);
+            String role = userEntity.getRoles();
+            String accessToken = jwtTokenProvider.createAccessToken(email, role);
             String refreshToken = tokenService.getRefreshToken(email);
             if( refreshToken == null ) {
                 // 가입후 최초, 아주 오랜만에 로그인한 유저(토큰 만료시간 이후 진입한 유저)

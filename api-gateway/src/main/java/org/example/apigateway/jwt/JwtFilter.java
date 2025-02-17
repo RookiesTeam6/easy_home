@@ -5,6 +5,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 웹 요청시 토큰 관리, 스프링 컨텍스트 접근 고려 -> 인터페이스 2개 활용
@@ -84,15 +87,23 @@ public class JwtFilter implements WebFilter, ApplicationContextAware {
             try{
                 // 정상 처리
                 // 4-1-1. 인증 절차 진행 (회원정보중에서 이메일(키로 사용) 집중적으로 체크)-> 토큰의 추가 정보에서 추출됨
-                // 이메일 추출
+                // 이메일, role 추출
                 String email = jwtTokenProvider.getEmailFromToken(token); // 만료, 토큰 유효성 검사
+                String role = jwtTokenProvider.getRoleFromToken(token); // role 추출
                 System.out.println("토큰에서 email 추출: " + email);
+                System.out.println("토큰에서 role 추출: " + role);
                 // 4-1-2. 게이트웨이에서 인증 객체 생성 요청 헤더에 정보를 심어서 개별 서비스로 전달
                 //        개별 서비스는 게이트웨이에서 심은 정보를 기반으로 인증여부를 판단할 수 있다!! -> 확장성 가질수 있다
                 //        개별 서비스는 게이트웨이의 시그널을 통해 인증을 간단하게 정리 or 토큰을 통해서 다시 검증가능
                 // 적용 예시
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                if ("ADMIN".equals(role)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                } else if ("USER".equals(role)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                }
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        new User(email, "", new ArrayList<>()), null, null
+                        new User(email, "", authorities), null, authorities
                 );
                 // 모든 요청은 게이트웨이를 통과 -> 필터링시 문제 없으면 반영 시킴 -> 하위 모든 서비스들은 이를 통해서 유효성 보장받음
                 return chain.filter(

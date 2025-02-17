@@ -100,4 +100,26 @@ public class JwtTokenProvider {
             throw e;
         }
     }
+
+    // 주어진 토큰을 통해서 role 획득
+    public String getRoleFromToken(String token) {
+        // 토큰 -> 추가 정보를 가진 그릇 획득 -> role(향후 추가 정보 가능) 획득
+        try {
+            // 추가 정보를 가진 그릇 획득
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(this.secretKey)  // 서명 키 설정
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // role 키값을 넣어서 획득
+            return claims.get("role", String.class);
+        } catch (ExpiredJwtException e) {
+            System.out.println("getRoleFromToken() 기간 만료 토큰 오류");
+            throw e;
+        } catch (Exception e) {
+            System.out.println("getRoleFromToken() 토큰 디코딩과정 일반 오류(서명오류), 토큰 조작(손실)되었다 ");
+            throw e;
+        }
+    }
 }
