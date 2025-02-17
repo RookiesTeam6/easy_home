@@ -1,6 +1,7 @@
 package org.example.msasbuser.controller;
 
 import org.example.msasbuser.dto.UserDto;
+import org.example.msasbuser.dto.UserUpdateDto;
 import org.example.msasbuser.jwt.JwtTokenProvider;
 import org.example.msasbuser.service.AddressService;
 import org.example.msasbuser.service.UserService;
@@ -70,6 +71,7 @@ public class UserController {
         }
     }
 
+    // 마이페이지 조회
     @GetMapping("/mypage")
     public ResponseEntity<UserDto> getMyPage(@RequestHeader("Authorization") String accessToken) {
         // JWT에서 이메일 추출 (Bearer 체크 X)
@@ -83,6 +85,28 @@ public class UserController {
         // 이메일로 유저 정보 조회
         UserDto userDto = userService.getUserInfoByEmail(email);
         return ResponseEntity.ok(userDto);
+    }
+
+    // 마이페이지 수정 및 업데이트
+    @PutMapping("/mypage")
+    public ResponseEntity<String> updateMyPage(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestBody UserUpdateDto userUpdateDto) {
+
+        // JWT에서 이메일 추출
+        String email = jwtTokenProvider.extractEmail(accessToken);
+
+        if (email == null) {
+            return ResponseEntity.status(403).body("인증 실패");
+        }
+
+        try {
+            // 유저 정보 업데이트 및 응답 메시지 반환
+            String message = userService.updateUserInfo(email, userUpdateDto);
+            return ResponseEntity.ok(message);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

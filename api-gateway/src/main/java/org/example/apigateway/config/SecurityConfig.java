@@ -56,8 +56,11 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 개별 서비스별 URL
+                        // 🏠 [마이페이지] 로그인한 사용자만 접근 가능
+                        .pathMatchers("/user/mypage").authenticated()
+
                         // 🏡 [입주민 전용] resident/** 페이지 -> ADMIN은 접근 불가
-                        .pathMatchers("/resident/**").permitAll()
+                        .pathMatchers("/resident/**").hasRole("USER")
 
                         // 📝 [게시판] 입주민만 작성, 수정, 삭제 가능 / 관리자는 읽기만 가능
                         .pathMatchers(HttpMethod.GET, "/board/**").permitAll()  // 누구나 읽기 가능
