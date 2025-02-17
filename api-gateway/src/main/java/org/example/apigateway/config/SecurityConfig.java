@@ -56,6 +56,9 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 개별 서비스별 URL
+                        // 🏠 [마이페이지] 로그인한 사용자만 접근 가능
+                        .pathMatchers("/user/mypage").authenticated()
+
                         // 🏡 [입주민 전용] resident/** 페이지 -> ADMIN은 접근 불가
                         .pathMatchers("/resident/**").permitAll()
 

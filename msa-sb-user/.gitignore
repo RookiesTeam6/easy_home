@@ -1,6 +1,8 @@
 ### secret.properties 추가 ###
 secret.properties
 
+.idea
+
 HELP.md
 .gradle
 build/

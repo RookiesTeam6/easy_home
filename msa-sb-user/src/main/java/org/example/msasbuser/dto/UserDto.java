@@ -1,6 +1,8 @@
 package org.example.msasbuser.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.antlr.v4.runtime.misc.NotNull;
 
@@ -11,6 +13,8 @@ import org.antlr.v4.runtime.misc.NotNull;
  */
 @Data
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     // @NotNull : 향후 버전에서는 제거될수 있다. 널 허용 x 반드시 세팅하는 강제조항
     @NotNull
@@ -24,4 +28,5 @@ public class UserDto {
     // ROLE_USER, ROLE_ADMIN, ROLE_SELLER
 
     private String address;
+
 }

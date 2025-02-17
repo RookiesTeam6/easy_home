@@ -1,6 +1,7 @@
 package org.example.msasbuser.service;
 
 import org.example.msasbuser.dto.UserDto;
+import org.example.msasbuser.dto.UserUpdateDto;
 import org.example.msasbuser.entity.UserEntity;
 import org.example.msasbuser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -113,4 +116,56 @@ public class UserService {
         // 5. 레디스 토큰 삭제
         redisTemplate.delete(token);
     }
+
+    // 마이페이지 - 이메일로 유저 정보 조회
+    public UserDto getUserInfoByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 조회 정보
+        return new UserDto(
+                user.getEmail(),
+                null, // 비밀번호는 노출 안 함
+                user.getUsername(),
+                user.getRoles(),
+                user.getAddress()
+        );
+    }
+
+
+    // 마이페이지 - 유저 정보 수정
+    public String updateUserInfo(String email, UserUpdateDto userUpdateDto) {
+        // 사용자 조회
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<String> changedFields = new ArrayList<>();
+
+        // 닉네임 업데이트 (비어 있지 않은 경우에만)
+        if (userUpdateDto.getUserName() != null && !userUpdateDto.getUserName().isEmpty()
+                && !userUpdateDto.getUserName().equals(userEntity.getUsername())) {
+            userEntity.setUserName(userUpdateDto.getUserName());
+            changedFields.add("닉네임");
+        }
+
+        // 주소 업데이트 (비어 있지 않은 경우에만)
+        if (userUpdateDto.getAddress() != null && !userUpdateDto.getAddress().isEmpty()
+                && !userUpdateDto.getAddress().equals(userEntity.getAddress())) {
+            String fullAddress = addressService.searchAddress(userUpdateDto.getAddress());
+            userEntity.setAddress(fullAddress);
+            changedFields.add("주소");
+        }
+
+        // 변경 사항이 없으면 처리하지 않음
+        if (changedFields.isEmpty()) {
+            return "변경된 정보가 없습니다.";
+        }
+
+        // 변경 사항 저장
+        userRepository.save(userEntity);
+
+        // 응답 메시지 구성
+        return "회원정보가 수정되었습니다. (수정된 항목: " + String.join(", ", changedFields) + ")";
+    }
+
 }

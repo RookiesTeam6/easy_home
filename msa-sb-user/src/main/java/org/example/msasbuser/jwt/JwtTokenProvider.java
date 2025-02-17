@@ -1,5 +1,6 @@
 package org.example.msasbuser.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -79,6 +80,21 @@ public class JwtTokenProvider {
             return true;
         }catch (Exception e){
             return false;
+        }
+    }
+
+    // 마이페이지 - 이메일 추출
+    public String extractEmail(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims.get("email", String.class);
+        } catch (Exception e) {
+            return null; // 토큰이 유효하지 않으면 null 반환
         }
     }
 }
