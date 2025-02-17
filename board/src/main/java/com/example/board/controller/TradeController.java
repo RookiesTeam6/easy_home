@@ -4,6 +4,7 @@ import com.example.board.entity.TradeEntity;
 import com.example.board.service.TradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,20 +17,23 @@ public class TradeController {
     private final TradeService tradeService;
 
     // 게시글 작성
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("")
-    public TradeEntity createTrade(@RequestBody TradeEntity trade) {
+    public TradeEntity createTrade(@RequestHeader("Authorization") String accessToken, @RequestBody TradeEntity trade) {
         return tradeService.createTrade(trade);
     }
 
     // 게시글 수정
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
-    public TradeEntity updateTrade(@PathVariable Integer id, @RequestBody TradeEntity trade) {
+    public TradeEntity updateTrade(@RequestHeader("Authorization") String accessToken, @PathVariable Integer id, @RequestBody TradeEntity trade) {
         return tradeService.updateTrade(id, trade);
     }
 
     // 게시글 삭제
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTrade(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteTrade(@RequestHeader("Authorization") String accessToken, @PathVariable Integer id) {
         tradeService.deleteTrade(id);
         return ResponseEntity.noContent().build();
     }

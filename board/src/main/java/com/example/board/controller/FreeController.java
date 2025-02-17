@@ -31,8 +31,9 @@ public class FreeController {
     }
 
     // 게시글 삭제
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Integer id) {
+    public ResponseEntity<Void> deletePost(@RequestHeader("Authorization") String accessToken, @PathVariable Integer id) {
         freeService.deletePost(id);
         return ResponseEntity.noContent().build();
     }

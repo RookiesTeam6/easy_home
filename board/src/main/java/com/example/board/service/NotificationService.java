@@ -1,9 +1,7 @@
 package com.example.board.service;
 
-import com.example.board.entity.FreeEntity;
-import com.example.board.entity.NoticeEntity;
-import com.example.board.repository.FreeRepository;
-import com.example.board.repository.NoticeRepository;
+import com.example.board.entity.NotificationEntity;
+import com.example.board.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,41 +10,41 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class NoticeService {
+public class NotificationService {
 
-    private final NoticeRepository noticeRepository;
+    private final NotificationRepository notificationRepository;
 
     // 게시글 작성
-    public NoticeEntity createPost(NoticeEntity post) {
+    public NotificationEntity createPost(NotificationEntity post) {
         post.setCreatedDate(LocalDateTime.now());
-        return noticeRepository.save(post);
+        return notificationRepository.save(post);
     }
 
     // 게시글 수정
-    public NoticeEntity updatePost(Integer id, NoticeEntity postDetails) {
-        NoticeEntity post = noticeRepository.findById(id)
+    public NotificationEntity updatePost(Integer id, NotificationEntity postDetails) {
+        NotificationEntity post = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         post.setTitle(postDetails.getTitle());
         post.setContent(postDetails.getContent());
         post.setAuthor(postDetails.getAuthor());
         post.setModifiedDate(LocalDateTime.now());
-        return noticeRepository.save(post);
+        return notificationRepository.save(post);
     }
 
     // 게시글 삭제
     public void deletePost(Integer id) {
-        noticeRepository.deleteById(id);
+        notificationRepository.deleteById(id);
     }
 
     // 개별 게시물 조회
-    public NoticeEntity getPost(Integer id) {
-        return noticeRepository.findById(id)
+    public NotificationEntity getPost(Integer id) {
+        return notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
     // 모든 게시물 조회
-    public List<NoticeEntity> getAllPosts() {
-        return noticeRepository.findAll();
+    public List<NotificationEntity> getAllPosts() {
+        return notificationRepository.findAll();
     }
 
 }

@@ -7,10 +7,12 @@ import com.example.board.service.FreeCommentService;
 import com.example.board.service.FreeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
+@PreAuthorize("hasRole('USER')")
 @RequestMapping("/board/comment")
 public class FreeCommentController {
 
@@ -19,20 +21,20 @@ public class FreeCommentController {
 
     // 댓글 작성
     @PostMapping("free/{postId}")
-    public FreeCommentEntity createComment(@PathVariable Integer postId, @RequestBody FreeCommentDto freeCommentDto) {
+    public FreeCommentEntity createComment(@RequestHeader("Authorization") String accessToken, @PathVariable Integer postId, @RequestBody FreeCommentDto freeCommentDto) {
         FreeEntity post = freeService.getPost(postId);
         return freeCommentService.createComment(post, freeCommentDto.getAuthor(), freeCommentDto.getContent());
     }
 
     // 댓글 수정
     @PutMapping("/{id}")
-    public FreeCommentEntity updateComment(@PathVariable Integer id, @RequestBody FreeCommentDto freeCommentDto) {
+    public FreeCommentEntity updateComment(@RequestHeader("Authorization") String accessToken, @PathVariable Integer id, @RequestBody FreeCommentDto freeCommentDto) {
         return freeCommentService.updateComment(id, freeCommentDto.getAuthor(), freeCommentDto.getContent());
     }
 
     // 댓글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteComment(@RequestHeader("Authorization") String accessToken, @PathVariable Integer id) {
         freeCommentService.deleteComment(id);
         return ResponseEntity.noContent().build();
     }
