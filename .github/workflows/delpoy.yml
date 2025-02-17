@@ -201,9 +201,10 @@ jobs:
             sudo fuser -k -n tcp 8761 || true
             sudo fuser -k -n tcp 8080 || true
             sudo fuser -k -n tcp 8081 || true
-            sudo fuser -k -n tcp 8090 || true
+            sudo fuser -k -n tcp 8082 || true
             sudo fuser -k -n tcp 8084 || true
             sudo fuser -k -n tcp 8085 || true
+            sudo fuser -k -n tcp 8090 || true
             
             nohup java -jar eureka-server-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar api-gateway-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
