@@ -5,8 +5,6 @@ import com.example.chatservice.chatroom.dto.response.ChatRoomResponse;
 import com.example.chatservice.chatroom.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,8 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/resident/chat/chat-rooms")
 @RequiredArgsConstructor
-@EnableMethodSecurity
-
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
