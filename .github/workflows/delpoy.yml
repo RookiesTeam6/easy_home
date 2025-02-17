@@ -133,8 +133,6 @@ jobs:
             ls -l /home/ubuntu/demo/home/easy-home-survey/build/libs/
             ls -l /home/ubuntu/demo/home/chat-service/build/libs/
 
-  
-
       - name: MySQL 연결 확인
         uses: appleboy/ssh-action@v1.2.0
         with:

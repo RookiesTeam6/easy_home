@@ -1,6 +1,5 @@
 ### secret.properties 추가 ###
 src/main/resources/secret.properties
-
 HELP.md
 .gradle
 build/
