@@ -20,6 +20,8 @@ public class ComplaintController {
     private final ComplaintService complaintService;
     private final KafkaProducer kafkaProducer;
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("")
     public ComplaintEntity createComplaint(@RequestHeader("Authorization") String accessToken, @RequestBody ComplaintEntity complaint) {
         // ComplaintEntity를 ComplaintDto로 변환
         ComplaintDto complaintDto = new ComplaintDto();
@@ -35,9 +37,8 @@ public class ComplaintController {
 
         // Kafka를 통해 관리자에게 알림 전송
         try {
-            kafkaProducer.sendMsg("complaints-topic", complaintDto); // "complaints-topic"은 적절한 토픽 이름으로 변경
+            kafkaProducer.sendMsg("complaints-topic", complaintDto);
         } catch (JsonProcessingException e) {
-            // 예외 처리 로직 (예: 로그 기록)
             e.printStackTrace();
         }
 
