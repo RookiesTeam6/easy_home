@@ -36,4 +36,18 @@ public class KafkaConsumer {
 
         } catch (Exception e) {} // 메시지 처리 중 오류 발생 시 출력
     }
+
+    @KafkaListener(topics = "user-deletion-topic", groupId = "test-group")
+    public void listenUserDeletionEvent(String message) {
+        try {
+            SignUpEventDto eventDto = objectMapper.readValue(message, SignUpEventDto.class);
+            System.out.println("회원 탈퇴 이벤트 수신 : " + eventDto.toString());
+            System.out.println("탈퇴한 이메일 : " + eventDto.getEmail());
+
+            // 예: 탈퇴 후 관련 데이터 삭제 처리
+            // userService.deleteUserData(eventDto.getEmail());
+        } catch (Exception e) {
+            System.err.println("탈퇴 이벤트 처리 중 오류 발생: " + e.getMessage());
+        }
+    }
 }

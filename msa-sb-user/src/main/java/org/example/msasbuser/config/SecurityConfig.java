@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 API (회원가입, 로그인, 이메일 인증)
-                        .requestMatchers("/auth/**", "/user/signup", "/user/valid","/user/mypage").permitAll()
+                        .requestMatchers("/auth/**", "/user/signup", "/user/valid","/user/mypage", "/user/delete").permitAll()
 
                         // 🏠 [마이페이지] 로그인한 사용자만 접근 가능
 //                        .requestMatchers("/user/mypage").authenticated()

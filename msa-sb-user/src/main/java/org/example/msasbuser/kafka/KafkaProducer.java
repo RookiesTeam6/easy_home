@@ -3,6 +3,7 @@ package org.example.msasbuser.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.msasbuser.dto.SignUpEventDto;
+import org.example.msasbuser.dto.UserDeleteEventDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,13 @@ public class KafkaProducer {
 
     // 재료는 OrderDto객체 -> 문자열직열화 처리 -> 메세지 형태는 문자열
     // 재료는 OrderDto객체 <- 문자열역직열화 처리 <- 메세지 형태는 문자열
+    // 회원가입 이벤트
     public void sendMsg(String topic, SignUpEventDto SignUpEventDto) throws JsonProcessingException {
         kafkaTemplate.send(topic, objectMapper.writeValueAsString(SignUpEventDto));
+    }
+
+    // 회원탈퇴 이벤트
+    public void sendMsg(String topic, UserDeleteEventDto UserDeleteEventDto) throws JsonProcessingException {
+        kafkaTemplate.send(topic, objectMapper.writeValueAsString(UserDeleteEventDto));
     }
 }
