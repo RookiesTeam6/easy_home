@@ -1,7 +1,10 @@
 package com.example.board.controller;
 
+import com.example.board.dto.ComplaintDto;
 import com.example.board.entity.ComplaintEntity;
+import com.example.board.kafka.KafkaProducer;
 import com.example.board.service.ComplaintService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,13 +18,40 @@ import java.util.List;
 public class ComplaintController {
 
     private final ComplaintService complaintService;
+    private final KafkaProducer kafkaProducer;
 
-    // 게시글 작성
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("")
     public ComplaintEntity createComplaint(@RequestHeader("Authorization") String accessToken, @RequestBody ComplaintEntity complaint) {
-        return complaintService.createComplaint(complaint);
+        // ComplaintEntity를 ComplaintDto로 변환
+        ComplaintDto complaintDto = new ComplaintDto();
+        complaintDto.setId(complaint.getId());
+        complaintDto.setTitle(complaint.getTitle());
+        complaintDto.setContent(complaint.getContent());
+        complaintDto.setAuthor(complaint.getAuthor());
+        complaintDto.setCreatedDate(complaint.getCreatedDate());
+        complaintDto.setModifiedDate(complaint.getModifiedDate());
+
+        // 민원 게시글을 데이터베이스에 저장
+        ComplaintEntity savedComplaint = complaintService.createComplaint(complaint);
+
+        // Kafka를 통해 관리자에게 알림 전송
+        try {
+            kafkaProducer.sendMsg("complaints-topic", complaintDto); // "complaints-topic"은 적절한 토픽 이름으로 변경
+        } catch (JsonProcessingException e) {
+            // 예외 처리 로직 (예: 로그 기록)
+            e.printStackTrace();
+        }
+
+        return savedComplaint;
     }
+
+//    // 카프카 테스트
+//    @PreAuthorize("hasRole('USER')")
+//    @PostMapping("/toadmin")
+//    public ResponseEntity<String> notifyAdmin(@RequestHeader("Authorization") String accessToken, @RequestBody ComplaintEntity complaint) {
+//        complaint.setAuthor(accessToken);
+//        kafkaProducer.sendMsg("민원처리부탁드립니다.", new ComplaintDto());
+//        return ResponseEntity.ok("민원 요청 완료");
+//    }
 
     // 게시글 수정
     @PreAuthorize("hasRole('USER')")
@@ -49,4 +79,6 @@ public class ComplaintController {
     public List<ComplaintEntity> getAllComplaints() {
         return complaintService.getAllcomplaints();
     }
+
+
 }
