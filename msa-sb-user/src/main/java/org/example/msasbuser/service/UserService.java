@@ -70,6 +70,8 @@ public class UserService {
         // 4. 인증 이메일 발송
         sendValidEmail( userEntity );
     }
+
+
     // 이메일 전송 메소드
     private void sendValidEmail(UserEntity userEntity) {
         // 이메일 내용 안에 인증 요청을 GET방식으로 요청하도록 URL을 구성
@@ -99,6 +101,8 @@ public class UserService {
         // 2. 전송
         mailSender.send(message);
     }
+
+
     // enable 컬럼 : f->t (유효할때만)
     public void updateActivate(String token) {
         // 1. 레디스 토큰 -> 이메일 획득
@@ -131,8 +135,6 @@ public class UserService {
                 user.getAddress()
         );
     }
-
-
     // 마이페이지 - 유저 정보 수정
     public String updateUserInfo(String email, UserUpdateDto userUpdateDto) {
         // 사용자 조회

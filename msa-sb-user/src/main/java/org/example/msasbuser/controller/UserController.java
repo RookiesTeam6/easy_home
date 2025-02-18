@@ -1,8 +1,11 @@
 package org.example.msasbuser.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.example.msasbuser.dto.SignUpEventDto;
 import org.example.msasbuser.dto.UserDto;
 import org.example.msasbuser.dto.UserUpdateDto;
 import org.example.msasbuser.jwt.JwtTokenProvider;
+import org.example.msasbuser.kafka.KafkaProducer;
 import org.example.msasbuser.service.AddressService;
 import org.example.msasbuser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ public class UserController {
     private AddressService addressService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private KafkaProducer kafkaProducer;
 
     // 에코테스트
     @GetMapping("/echo")
@@ -49,7 +54,23 @@ public class UserController {
         // 1. 회원가입처리 -> 비즈니스로직 -> 서비스 해결
         // 2. UserSercvice에 createUser( xxDTO ) -> 레퍼지토리 -> 디비까지 입력 구성 -> 인증메일발송
         userService.createUser( userDto );
-        // 3. 응답처리
+
+        // 3. 회원가입 이벤트 발송
+        SignUpEventDto signUpEventDto = SignUpEventDto.builder()
+                .email(userDto.getEmail())
+                .nickname(userDto.getUserName())
+                .build();
+
+
+        try {
+            kafkaProducer.sendMsg("user-signup-topic", signUpEventDto); // Kafka Producer를 통해 이벤트 전송
+            System.out.println("회원가입 이벤트 전송 : " + signUpEventDto);
+        } catch (JsonProcessingException e) {
+            System.err.println("회원가입 이벤트 전송 실패 : " + e.getMessage());
+            return ResponseEntity.status(500).body("이벤트 발송 중 오류가 발생했습니다.");
+        }
+
+        // 4. 응답처리
         return ResponseEntity.ok("회원가입 성공");
     }
 
