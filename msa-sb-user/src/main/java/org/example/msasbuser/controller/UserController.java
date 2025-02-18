@@ -131,6 +131,8 @@ public class UserController {
         }
     }
 
+
+    // 회원 탈퇴
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String accessToken) {
         // JWT에서 이메일 추출
@@ -143,21 +145,25 @@ public class UserController {
 
         // 사용자 탈퇴 처리
         try {
-            userService.deleteUserByEmail(email);
+            userService.deleteUserByEmail(email); // 이메일을 기반으로 사용자 정보 삭제
 
-            // 탈퇴 이벤트 발송
+            // 탈퇴 이벤트 발송 (닉네임은 "탈퇴한 사용자"로 설정)
             UserDeleteEventDto userDeleteEventDto = UserDeleteEventDto.builder()
                     .email(email)
                     .nickname("탈퇴한 사용자") // 탈퇴한 사용자의 닉네임
                     .build();
 
+            // Kafka Producer를 통해 탈퇴 이벤트 전송
             kafkaProducer.sendMsg("user-deletion-topic", userDeleteEventDto); // Kafka Producer를 통해 탈퇴 이벤트 전송
             System.out.println("회원 탈퇴 이벤트 전송: " + userDeleteEventDto);
 
+            // 회원 탈퇴 성공 응답 반환
             return ResponseEntity.ok("회원 탈퇴 성공");
         } catch (IllegalArgumentException e) {
+            // 사용자를 찾을 수 없는 경우 404 응답 반환
             return ResponseEntity.status(404).body("사용자를 찾을 수 없습니다.");
         } catch (JsonProcessingException e) {
+            // Kafka 메시지 전송 중 JSON 변환 오류 발생 시 500 응답 반환
             System.err.println("탈퇴 이벤트 전송 실패 : " + e.getMessage());
             return ResponseEntity.status(500).body("이벤트 발송 중 오류가 발생했습니다.");
         }
