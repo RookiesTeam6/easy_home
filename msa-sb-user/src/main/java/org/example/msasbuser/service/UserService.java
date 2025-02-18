@@ -170,4 +170,14 @@ public class UserService {
         return "회원정보가 수정되었습니다. (수정된 항목: " + String.join(", ", changedFields) + ")";
     }
 
+    // 회원탈퇴 처리
+    public void deleteUserByEmail(String email) {
+        // 사용자 조회
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 사용자 삭제
+        userRepository.delete(userEntity);
+    }
+
 }
