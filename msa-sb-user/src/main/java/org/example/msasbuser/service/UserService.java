@@ -1,6 +1,7 @@
 package org.example.msasbuser.service;
 
 import org.example.msasbuser.dto.UserDto;
+import org.example.msasbuser.dto.UserUpdateDto;
 import org.example.msasbuser.entity.UserEntity;
 import org.example.msasbuser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -32,35 +35,27 @@ public class UserService {
     private AddressService addressService;
 
     public void createUser(UserDto userDto) {
-
         // 1. 입력값 검증
         // 값 -> 검증가능!! -> 오류 -> 예외 던지기!! -> 생략
         // UI단을 사용 -> validation 사용, restapi -> 값에서 체크
-        System.out.println("createUser 입성");
-
         if( userDto.getEmail() == null || userDto.getEmail().isEmpty() ) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-        System.out.println("이메일 입력 확인");
         // 기존 가입자인지? -> 이메일 중복 체크!! -> 레포지토리 커스텀 구성
         // findBy + 컬럼명() => findByEmail()
         if( userRepository.findByEmail(userDto.getEmail()).isPresent() ) {
             throw new IllegalArgumentException("Email already exists");
         }
-        System.out.println("이메일 중복 확인");
         if( userDto.getUserName() == null || userDto.getUserName().isEmpty() ) {
             throw new IllegalArgumentException("userName cannot be empty");
         }
-        System.out.println("유저이름 확인");
         if( userDto.getPassword() == null || userDto.getPassword().isEmpty() ) {
             throw new IllegalArgumentException("password cannot be empty");
         }
 
-        System.out.println("비밀번호 확인");
         // 입력받은 주소 키워드로 실제 주소 검색
         String fullAddress = addressService.searchAddress(userDto.getAddress());
 
-        System.out.println("실존 주소 확인 / 앤티티 생성 시작");
         // 2. 엔티티 생성
         UserEntity userEntity = UserEntity.builder()
                 .email(userDto.getEmail())
@@ -71,17 +66,14 @@ public class UserService {
                 .enable(false)
                 .build();
 
-        System.out.println("앤티티 생성 성공");
         // 3. 엔티티 저장 -> DB에 members 테이블에 저장
         userRepository.save(userEntity);
 
-        System.out.println("앤티티 저장성공 | 이메일 발송 준빈");
         // 4. 인증 이메일 발송
         sendValidEmail( userEntity );
     }
     // 이메일 전송 메소드
     private void sendValidEmail(UserEntity userEntity) {
-        System.out.println("이메일 검증 함수 들어옴 | 토큰 발행");
         // 이메일 내용 안에 인증 요청을 GET방식으로 요청하도록 URL을 구성
         // 게이트웨이에 프리패스로 URL 등록되어야 한다
         // URL 합당하게 처리되기 위해서 토큰(일종의)값 같이 전달
@@ -91,19 +83,14 @@ public class UserService {
 
         // 1. 토큰 발행 -> 단순하게 기기 고유값 생성
         String token = UUID.randomUUID().toString();
-
         // 2. redis 저장 -> 키는 토큰(외부공개->가입자에게만 전달), 값은 이메일(토큰->이메일추출->db에 존재하는가?), 만료시간 6시간,
         //    이메일 인증절차 -> 유효한 이메일인지를 검증하는 단계
         redisTemplate.opsForValue().set(token,
                 userEntity.getEmail(), 6, TimeUnit.HOURS);
-
         // 3. URL 구성 -> 가입한 사용자의 이메일에서 인증메일에 전송된 링크
         String url = "http://localhost:8080/user/valid?token=" + token;
-
-        System.out.println("userEntity.getEmail" + userEntity.getEmail());
         // 4. 메일 전송 (받는 사람주소, 제목, 내용)
         sendMail( userEntity.getEmail(), "Email 인증", "링크를 눌러서 인증: " + url );
-
     }
     private void sendMail(String email, String subject, String content) {
         // 1. 메세지 구성
@@ -111,7 +98,6 @@ public class UserService {
         message.setTo(email);
         message.setSubject(subject);
         message.setText(content);
-
         // 2. 전송
         mailSender.send(message);
     }
@@ -133,10 +119,12 @@ public class UserService {
         redisTemplate.delete(token);
     }
 
+    // 마이페이지 - 이메일로 유저 정보 조회
     public UserDto getUserInfoByEmail(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        // 조회 정보
         return new UserDto(
                 user.getEmail(),
                 null, // 비밀번호는 노출 안 함
@@ -145,4 +133,49 @@ public class UserService {
                 user.getAddress()
         );
     }
+    // 마이페이지 - 유저 정보 수정
+    public String updateUserInfo(String email, UserUpdateDto userUpdateDto) {
+        // 사용자 조회
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<String> changedFields = new ArrayList<>();
+
+        // 닉네임 업데이트 (비어 있지 않은 경우에만)
+        if (userUpdateDto.getUserName() != null && !userUpdateDto.getUserName().isEmpty()
+                && !userUpdateDto.getUserName().equals(userEntity.getUsername())) {
+            userEntity.setUserName(userUpdateDto.getUserName());
+            changedFields.add("닉네임");
+        }
+
+        // 주소 업데이트 (비어 있지 않은 경우에만)
+        if (userUpdateDto.getAddress() != null && !userUpdateDto.getAddress().isEmpty()
+                && !userUpdateDto.getAddress().equals(userEntity.getAddress())) {
+            String fullAddress = addressService.searchAddress(userUpdateDto.getAddress());
+            userEntity.setAddress(fullAddress);
+            changedFields.add("주소");
+        }
+
+        // 변경 사항이 없으면 처리하지 않음
+        if (changedFields.isEmpty()) {
+            return "변경된 정보가 없습니다.";
+        }
+
+        // 변경 사항 저장
+        userRepository.save(userEntity);
+
+        // 응답 메시지 구성
+        return "회원정보가 수정되었습니다. (수정된 항목: " + String.join(", ", changedFields) + ")";
+    }
+
+    // 회원탈퇴 처리
+    public void deleteUserByEmail(String email) {
+        // 사용자 조회
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 사용자 삭제
+        userRepository.delete(userEntity);
+    }
+
 }
