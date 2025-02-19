@@ -52,7 +52,7 @@ jobs:
           ls
           ls ./build/libs
 
-      # 3. 빌드 (msa-sb-user)
+      # 3. 빌드 (msa-sb-user, 여기서 문제, kafka 추가 이후)
       - name: 빌드 (msa-sb-user)
         working-directory: ./msa-sb-user
         run: |
