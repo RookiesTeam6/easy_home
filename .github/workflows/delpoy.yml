@@ -267,3 +267,4 @@ jobs:
             nohup java -jar easy-home-survey-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar easy-home-vote-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar chat-service-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
+            nohup java -jar kafka-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
