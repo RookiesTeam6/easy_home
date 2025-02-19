@@ -99,6 +99,24 @@ jobs:
           ls
           ls ./build/libs     
 
+      - name: 빌드 (board)
+        working-directory: ./board
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
+          pwd
+          ls
+          ls ./build/libs     
+
+      - name: 빌드 (kafka)
+        working-directory: ./kafka
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
+          pwd
+          ls
+          ls ./build/libs  
+
       # 5. SSH를 통해 EC2에 연결하여 업로드
       - name: EC2에 연결하여 업로드 (유레카, gateway, msa-user, redis)
         uses: appleboy/scp-action@v0.1.7
@@ -109,7 +127,16 @@ jobs:
           source: ./eureka-server/build/libs/eureka-server-0.0.1-SNAPSHOT.jar, ./api-gateway/build/libs/api-gateway-0.0.1-SNAPSHOT.jar, ./msa-sb-user/build/libs/msa-sb-user-0.0.1-SNAPSHOT.jar, ./redis-db-test/build/libs/redis-db-test-0.0.1-SNAPSHOT.jar
           target: /home/ubuntu/demo/home
 
-      - name: EC2에 연결하여 업로드 (vote, survey, chat)
+      - name: EC2에 연결하여 업로드 (board, kafka)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: ./board/build/libs/board-0.0.1-SNAPSHOT.jar, ./kafka/build/libs/kafka-0.0.1-SNAPSHOT.jar
+          target: /home/ubuntu/demo/home
+
+      - name: EC2에 연결하여 업로드 (vote, survey, chat, board)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -132,6 +159,8 @@ jobs:
             ls -l /home/ubuntu/demo/home/easy-home-vote/build/libs/
             ls -l /home/ubuntu/demo/home/easy-home-survey/build/libs/
             ls -l /home/ubuntu/demo/home/chat-service/build/libs/
+            ls -l /home/ubuntu/demo/home/board/build/libs/
+            ls -l /home/ubuntu/demo/home/kafka/build/libs/
 
       - name: MySQL 연결 확인
         uses: appleboy/ssh-action@v1.2.0
@@ -174,6 +203,8 @@ jobs:
             mv /home/ubuntu/demo/home/easy-home-vote/build/libs/easy-home-vote-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/easy-home-vote-0.0.1-SNAPSHOT.jar
             mv /home/ubuntu/demo/home/easy-home-survey/build/libs/easy-home-survey-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/easy-home-survey-0.0.1-SNAPSHOT.jar
             mv /home/ubuntu/demo/home/chat-service/build/libs/chat-service-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/chat-service-0.0.1-SNAPSHOT.jar
+            mv /home/ubuntu/demo/home/board/build/libs/board-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/board-0.0.1-SNAPSHOT.jar
+            mv /home/ubuntu/demo/home/kafka/build/libs/kafka-0.0.1-SNAPSHOT.jar /home/ubuntu/server/easy_home/kafka-0.0.1-SNAPSHOT.jar
             cd /home/ubuntu/server/easy_home
             
             # 깃 시크릿 사용
@@ -198,14 +229,19 @@ jobs:
             sudo fuser -k -n tcp 8080 || true
             sudo fuser -k -n tcp 8081 || true
             sudo fuser -k -n tcp 8082 || true
+            sudo fuser -k -n tcp 8083 || true
             sudo fuser -k -n tcp 8084 || true
             sudo fuser -k -n tcp 8085 || true
             sudo fuser -k -n tcp 8090 || true
+            sudo fuser -k -n tcp 8070 || true
+            sudo fuser -k -n tcp 9092 || true
             
             nohup java -jar eureka-server-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar api-gateway-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar redis-db-test-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
+            nohup java -jar kafka-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar msa-sb-user-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
+            nohup java -jar board-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar easy-home-survey-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar easy-home-vote-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
             nohup java -jar chat-service-0.0.1-SNAPSHOT.jar > ./output.log 2>&1 &
