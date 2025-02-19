@@ -176,6 +176,18 @@ jobs:
             mysql -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
             echo "MySQL connection successful."
 
+      - name: kafka 컨테이너 실행 확인 및 시작
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/ubuntu/server/easy_home/kafka
+            docker-compose down  
+            docker-compose up -d 
+            docker ps 
+
       - name: 컨테이너 실행 확인 및 시작
         uses: appleboy/ssh-action@v1.2.0
         with:
