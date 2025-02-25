@@ -8,6 +8,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class OptionResultDto {
+    private Integer optionPk;
     private String option;
     private Integer count;
 }
