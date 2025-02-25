@@ -106,6 +106,7 @@ public class SurveyService {
 
                     // QuestionResultDto 생성
                     QuestionResultDto questionResultDto = new QuestionResultDto();
+                    questionResultDto.setQuestionPk(question.getQuestionPk());
                     questionResultDto.setQuestion(question.getQuestion());
                     questionResultDto.setAnswers(answers);
                     return questionResultDto;
@@ -119,6 +120,13 @@ public class SurveyService {
         surveyResultDto.setQuestions(questionResults);
 
         return surveyResultDto;
+    }
+
+    // 설문 목록 조회
+    public List<SurveyListDto> getAllSurveys() {
+        return surveyRepository.findAll().stream()
+                .map(survey -> new SurveyListDto(survey.getSurveyPk(), survey.getTitle()))
+                .collect(Collectors.toList());
     }
 
     // 설문 수정

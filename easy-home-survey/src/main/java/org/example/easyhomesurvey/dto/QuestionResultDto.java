@@ -10,6 +10,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 public class QuestionResultDto {
+    private Integer questionPk;
     private String question;
     private List<String> answers;
 }
