@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/vote")
 @PreAuthorize("hasRole('ADMIN')")       // 관리자만 접근 가능
@@ -26,6 +28,13 @@ public class AdminVoteController {
     @GetMapping("/{votePk}")
     public VoteResultDto getVoteResults(@PathVariable Integer votePk) {
         return voteService.getVoteResults(votePk);
+    }
+
+    // 투표 목록 조회
+    @GetMapping("/list")
+    public ResponseEntity<List<VoteListDto>> getVoteList() {
+        List<VoteListDto> votes = voteService.getAllVotes();
+        return ResponseEntity.ok(votes);
     }
 
     // 투표 수정

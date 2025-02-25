@@ -115,6 +115,7 @@ public class VoteService {
                 .map(option -> {
                     // OptionResultDto 생성
                     OptionResultDto optionResultDto = new OptionResultDto();
+                    optionResultDto.setOptionPk(option.getOptionPk());
                     optionResultDto.setOption(option.getContent());
                     optionResultDto.setCount(option.getCount());
                     return optionResultDto;
@@ -128,6 +129,13 @@ public class VoteService {
         voteResultDto.setOptions(optionResults);
 
         return voteResultDto;
+    }
+
+    // 투표 목록 조회
+    public List<VoteListDto> getAllVotes() {
+        return voteRepository.findAll().stream()
+                .map(vote -> new VoteListDto(vote.getVotePk(), vote.getTitle()))
+                .collect(Collectors.toList());
     }
 
     // 투표 수정
