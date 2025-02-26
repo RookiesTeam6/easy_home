@@ -13,12 +13,14 @@ import java.util.stream.Collectors;
 @Builder
 public class ChatRoomResponse {
     private Long chatRoomId;
+    private String roomName; // 새로 추가된 필드
     private List<Long> memberPks;
     private LocalDateTime createdAt;
 
     public static ChatRoomResponse from(ChatRoom chatRoom) {
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getChatRoomId())
+                .roomName(chatRoom.getRoomName()) // 새로 추가된 필드
                 .memberPks(chatRoom.getMembers().stream()
                         .map(ChatRoomMember::getUserPk)
                         .collect(Collectors.toList()))
