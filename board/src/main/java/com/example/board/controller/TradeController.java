@@ -1,8 +1,10 @@
 package com.example.board.controller;
 
+import com.example.board.entity.FreeEntity;
 import com.example.board.entity.TradeEntity;
 import com.example.board.service.TradeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +46,18 @@ public class TradeController {
         return tradeService.getTrade(id);
     }
 
-    // 모든 게시물 조회
+//    // 모든 게시물 조회
+//    @GetMapping("")
+//    public List<TradeEntity> getAllTrades() {
+//        return tradeService.getAllTrades();
+//    }
+
+    // 페이징 기능
     @GetMapping("")
-    public List<TradeEntity> getAllTrades() {
-        return tradeService.getAllTrades();
+    public ResponseEntity<Page<TradeEntity>> getPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<TradeEntity> paging = this.tradeService.getPosts(page, size);
+        return ResponseEntity.ok(paging);       // 반환할 뷰로 수정
     }
 }

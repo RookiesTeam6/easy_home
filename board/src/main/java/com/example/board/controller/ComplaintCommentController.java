@@ -39,17 +39,4 @@ public class ComplaintCommentController {
         complaintCommentService.deletecomplaintComment(id);
         return ResponseEntity.noContent().build();
     }
-
-
-//    // 개별 댓글 조회
-//    @GetMapping("/{id}")
-//    public CommentEntity getComment(@PathVariable Integer id) {
-//        return commentService.getComment(id);
-//    }
-//
-//    // 모든 댓글 조회
-//    @GetMapping("")
-//    public List<CommentEntity> getAllComments() {
-//        return commentService.getAllComments();
-//    }
 }

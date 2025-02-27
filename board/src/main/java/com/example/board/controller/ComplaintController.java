@@ -2,10 +2,12 @@ package com.example.board.controller;
 
 import com.example.board.dto.ComplaintDto;
 import com.example.board.entity.ComplaintEntity;
+import com.example.board.entity.FreeEntity;
 import com.example.board.kafka.KafkaProducer;
 import com.example.board.service.ComplaintService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +29,6 @@ public class ComplaintController {
         ComplaintDto complaintDto = new ComplaintDto();
         complaintDto.setTitle(complaint.getTitle());
         complaintDto.setContent(complaint.getContent());
-        // 민원 게시글을 데이터베이스에 저장
         ComplaintEntity savedComplaint = complaintService.createComplaint(complaint);
 
         // Kafka를 통해 ADMIN에게 알림 전송
@@ -39,15 +40,6 @@ public class ComplaintController {
         }
         return "등록 완료"; // 성공적으로 전송된 경우 메시지 반환
     }
-
-//    // 카프카 테스트
-//    @PreAuthorize("hasRole('USER')")
-//    @PostMapping("/toadmin")
-//    public ResponseEntity<String> notifyAdmin(@RequestHeader("Authorization") String accessToken, @RequestBody ComplaintEntity complaint) {
-//        complaint.setAuthor(accessToken);
-//        kafkaProducer.sendMsg("민원처리부탁드립니다.", new ComplaintDto());
-//        return ResponseEntity.ok("민원 요청 완료");
-//    }
 
     // 게시글 수정
     @PreAuthorize("hasRole('USER')")
@@ -70,11 +62,18 @@ public class ComplaintController {
         return complaintService.getComplaint(id);
     }
 
-    // 모든 게시물 조회
+//    // 모든 게시물 조회
+//    @GetMapping("")
+//    public List<ComplaintEntity> getAllComplaints() {
+//        return complaintService.getAllcomplaints();
+//    }
+
+    // 페이징 기능
     @GetMapping("")
-    public List<ComplaintEntity> getAllComplaints() {
-        return complaintService.getAllcomplaints();
+    public ResponseEntity<Page<ComplaintEntity>> getPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<ComplaintEntity> paging = this.complaintService.getPosts(page, size);
+        return ResponseEntity.ok(paging);       // 반환할 뷰로 수정
     }
-
-
 }
