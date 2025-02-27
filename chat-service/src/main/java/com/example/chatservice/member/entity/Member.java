@@ -19,12 +19,15 @@ public class Member {
 
     private String nickname;
 
+    private String address;  // address 필드 추가
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Member(String nickname) {
+    public Member(String nickname, String address) {  // 생성자에 address 매개변수 추가
         this.nickname = nickname;
+        this.address = address;
     }
 }

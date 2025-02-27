@@ -20,12 +20,15 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatRoomId;
 
+    private String roomName; // 새로 추가된 필드
+
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<ChatRoomMember> members = new ArrayList<>();
 
-    public ChatRoom(Long userPk1, Long userPk2) {
+    public ChatRoom(String roomName, Long userPk1, Long userPk2) {
+        this.roomName = roomName;
         this.createdAt = LocalDateTime.now();
         this.members.add(new ChatRoomMember(this, userPk1));
         this.members.add(new ChatRoomMember(this, userPk2));
