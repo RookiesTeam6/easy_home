@@ -1,8 +1,12 @@
 package com.example.board.service;
 
+import com.example.board.entity.FreeEntity;
 import com.example.board.entity.NotificationEntity;
 import com.example.board.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,9 +46,15 @@ public class NotificationService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    // 모든 게시물 조회
-    public List<NotificationEntity> getAllPosts() {
-        return notificationRepository.findAll();
+//    // 모든 게시물 조회
+//    public List<NotificationEntity> getAllPosts() {
+//        return notificationRepository.findAll();
+//    }
+
+    // 페이징 기능
+    public Page<NotificationEntity> getPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, 10); // 페이지 크기를 10으로 고정
+        return notificationRepository.findAll(pageable);
     }
 
 }

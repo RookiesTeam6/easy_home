@@ -3,10 +3,13 @@ package com.example.board.controller;
 import com.example.board.entity.FreeEntity;
 import com.example.board.service.FreeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -44,9 +47,18 @@ public class FreeController {
         return freeService.getPost(id);
     }
 
-    // 모든 게시물 조회
+//    // 모든 게시물 조회
+//    @GetMapping("")
+//    public List<FreeEntity> getAllPosts() {
+//        return freeService.getAllPosts();
+//    }
+
+    // 페이징 기능
     @GetMapping("")
-    public List<FreeEntity> getAllPosts() {
-        return freeService.getAllPosts();
+    public ResponseEntity<Page<FreeEntity>> getPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<FreeEntity> paging = this.freeService.getPosts(page, size);
+        return ResponseEntity.ok(paging);       // 반환할 뷰로 수정
     }
 }
