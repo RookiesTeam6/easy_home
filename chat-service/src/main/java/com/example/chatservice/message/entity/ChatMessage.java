@@ -19,7 +19,6 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
-
     private Long chatRoomId;
     private Long senderPk;
     private String content;
