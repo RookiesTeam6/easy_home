@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: redis-db-test
+
+  # redis repository 기능 비활성화 처리
+  # RedisTemplate 이라는 객체만 활용하여 엑세스 처리 하겠다는 의도
+  # 스프링부트 <-> repository | (*)RedisTemplate <-> redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      repositories:
+        enabled: false
+
+
+# redis 포트 번호 -> 8090
+server:
+  port: 8090
