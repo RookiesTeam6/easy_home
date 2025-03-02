@@ -23,7 +23,11 @@ public class ChatRoomService {
 
     @Transactional
     public ChatRoomResponse createChatRoom(CreateChatRoomRequest request) {
-        ChatRoom chatRoom = new ChatRoom(request.getUserPk1(), request.getUserPk2());
+        ChatRoom chatRoom = new ChatRoom(
+                request.getRoomName(),
+                request.getUserPk1(),
+                request.getUserPk2()
+        );
         return ChatRoomResponse.from(chatRoomRepository.save(chatRoom));
     }
 

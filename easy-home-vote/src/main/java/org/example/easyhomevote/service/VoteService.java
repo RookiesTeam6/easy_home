@@ -60,13 +60,6 @@ public class VoteService {
     }
     // 투표 참여 - 입주민
     public void joinVote(String email, AnswerDto answerDto) {
-        /*// 회원번호 조회
-        if (answerDto.getUserPk() == null) {
-            throw new IllegalArgumentException("userPk is null");
-        }
-        UserEntity user = userRepository.findById(answerDto.getUserPk())
-                .orElseThrow(() -> new IllegalArgumentException("User does not exist"));*/
-
         // votePk 조회
         if (answerDto.getVotePk() == null) {
             throw new IllegalArgumentException("votePk is null");
@@ -115,6 +108,7 @@ public class VoteService {
                 .map(option -> {
                     // OptionResultDto 생성
                     OptionResultDto optionResultDto = new OptionResultDto();
+                    optionResultDto.setOptionPk(option.getOptionPk());
                     optionResultDto.setOption(option.getContent());
                     optionResultDto.setCount(option.getCount());
                     return optionResultDto;
@@ -128,6 +122,13 @@ public class VoteService {
         voteResultDto.setOptions(optionResults);
 
         return voteResultDto;
+    }
+
+    // 투표 목록 조회
+    public List<VoteListDto> getAllVotes() {
+        return voteRepository.findAll().stream()
+                .map(vote -> new VoteListDto(vote.getVotePk(), vote.getTitle()))
+                .collect(Collectors.toList());
     }
 
     // 투표 수정
@@ -156,7 +157,7 @@ public class VoteService {
     }
 
     // 선택지 추가
-    public void addOption(Integer votePk, OptionDto optionDto) {
+    public VoteOption addOption(Integer votePk, OptionDto optionDto) {
         // 투표 조회
         VoteEntity voteEntity = voteRepository.findById(votePk)
                 .orElseThrow(() -> new IllegalArgumentException("Vote not found"));
@@ -168,6 +169,7 @@ public class VoteService {
 
         // 투표 저장
         voteRepository.save(voteEntity);
+        return newOption;
     }
 
     // 선택지 수정

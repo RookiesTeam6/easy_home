@@ -58,11 +58,11 @@ dependencies {
     // 리액티브 웹(spring-boot-starter-webflux) <-> MVC 웹(spring-boot-starter-web)
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    /*// 실시간 데이터 스트리밍 처리용도
+    // 실시간 데이터 스트리밍 처리용도
     implementation 'org.apache.kafka:kafka-streams'
     // 스프링부트에서 지원하는 카프카(브로커 및 기타 일반적 용도)
     implementation 'org.springframework.kafka:spring-kafka'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'*/
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 
     // (*)Jackson | gson : JSON 데이터 처리 -> 데이터 형태 파싱
 

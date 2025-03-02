@@ -3,8 +3,10 @@ package com.example.board.service;
 import com.example.board.entity.FreeEntity;
 import com.example.board.repository.FreeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,9 +44,14 @@ public class FreeService {
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    // 모든 게시물 조회
-    public List<FreeEntity> getAllPosts() {
-        return freeRepository.findAll();
-    }
+//    // 모든 게시물 조회
+//    public List<FreeEntity> getAllPosts() {
+//        return freeRepository.findAll();
+//    }
 
+    // 페이징 기능
+    public Page<FreeEntity> getPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, 10); // 페이지 크기를 10으로 고정
+        return freeRepository.findAll(pageable);
+    }
 }
