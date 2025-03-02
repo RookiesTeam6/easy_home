@@ -41,38 +41,55 @@ public class UserController {
     @PostMapping("/signup")
     // ResponseEntity<?>  => 응답을 유연하게 구성 가능함
     public ResponseEntity<String> signup(@RequestBody UserDto userDto) {
-        System.out.println("회원가입요청 : " + userDto.toString());
-
-        // 주소 검색
-        if (userDto.getAddress() == null || userDto.getAddress().isEmpty()) {
-            throw new IllegalArgumentException("주소를 입력해야 합니다.");
-        }
-        // 주소 검색 API 호출
-        String fullAddress = addressService.searchAddress(userDto.getAddress());
-        userDto.setAddress(fullAddress);
-
-
-        // 1. 회원가입처리 -> 비즈니스로직 -> 서비스 해결
-        // 2. UserSercvice에 createUser( xxDTO ) -> 레퍼지토리 -> 디비까지 입력 구성 -> 인증메일발송
-        userService.createUser( userDto );
-
-        // 3. 회원가입 이벤트 발송
-        SignUpEventDto signUpEventDto = SignUpEventDto.builder()
-                .email(userDto.getEmail())
-                .nickname(userDto.getUserName())
-                .build();
-
-
         try {
-            kafkaProducer.sendMsg("user-signup-topic", signUpEventDto); // Kafka Producer를 통해 이벤트 전송
-            System.out.println("회원가입 이벤트 전송 : " + signUpEventDto);
-        } catch (JsonProcessingException e) {
-            System.err.println("회원가입 이벤트 전송 실패 : " + e.getMessage());
-            return ResponseEntity.status(500).body("이벤트 발송 중 오류가 발생했습니다.");
-        }
+            System.out.println("회원가입 요청: " + userDto.toString());
 
-        // 4. 응답처리
-        return ResponseEntity.ok("회원가입 성공");
+            // 필수 필드 검증
+            if (userDto.getEmail() == null || userDto.getEmail().isEmpty()) {
+                throw new IllegalArgumentException("이메일을 입력해야 합니다.");
+            }
+            if (userDto.getUserName() == null || userDto.getUserName().isEmpty()) {
+                throw new IllegalArgumentException("닉네임을 입력해야 합니다.");
+            }
+            if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+                throw new IllegalArgumentException("비밀번호를 입력해야 합니다.");
+            }
+            if (userDto.getAddress() == null || userDto.getAddress().isEmpty()) {
+                throw new IllegalArgumentException("주소를 입력해야 합니다.");
+            }
+
+            // 주소 검색 API 호출
+            String fullAddress = addressService.searchAddress(userDto.getAddress());
+            userDto.setAddress(fullAddress);
+
+            // 1. 회원가입처리 -> 비즈니스로직 -> 서비스 해결
+            // 2. UserSercvice에 createUser( xxDTO ) -> 레퍼지토리 -> 디비까지 입력 구성 -> 인증메일발송
+            userService.createUser(userDto);
+
+            // 3. 회원가입 이벤트 발송
+            SignUpEventDto signUpEventDto = SignUpEventDto.builder()
+                    .email(userDto.getEmail())
+                    .nickname(userDto.getUserName())
+                    .build();
+
+            // 3.5 Kafka Producer를 통해 이벤트 전송
+            kafkaProducer.sendMsg("user-signup-topic", signUpEventDto);
+            System.out.println("회원가입 이벤트 전송 성공: " + signUpEventDto);
+
+            // 4. 응답 처리
+            return ResponseEntity.ok("회원가입 성공");
+
+            // 5. 예외처리
+        } catch (IllegalArgumentException e) {
+            System.err.println("입력값 검증 실패: " + e.getMessage());
+            return ResponseEntity.badRequest().body("입력값 오류: " + e.getMessage());
+        } catch (JsonProcessingException e) {
+            System.err.println("회원가입 이벤트 JSON 변환 실패: " + e.getMessage());
+            return ResponseEntity.status(500).body("이벤트 발송 중 오류가 발생했습니다.");
+        } catch (Exception e) {
+            System.err.println("회원가입 중 예기치 않은 오류 발생: " + e.getMessage());
+            return ResponseEntity.status(500).body("서버 내부 오류가 발생했습니다.");
+        }
     }
 
 

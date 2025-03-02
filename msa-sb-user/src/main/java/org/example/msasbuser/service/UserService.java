@@ -37,18 +37,19 @@ public class UserService {
         // 값 -> 검증가능!! -> 오류 -> 예외 던지기!! -> 생략
         // UI단을 사용 -> validation 사용, restapi -> 값에서 체크
         if( userDto.getEmail() == null || userDto.getEmail().isEmpty() ) {
-            throw new IllegalArgumentException("Email cannot be empty");
+            throw new IllegalArgumentException("이메일을 입력하세요");
         }
         // 기존 가입자인지? -> 이메일 중복 체크!! -> 레포지토리 커스텀 구성
         // findBy + 컬럼명() => findByEmail()
         if( userRepository.findByEmail(userDto.getEmail()).isPresent() ) {
-            throw new IllegalArgumentException("Email already exists");
+            System.err.println("회원가입 실패: 이미 존재하는 이메일 : " + userDto.getEmail());
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
         if( userDto.getUserName() == null || userDto.getUserName().isEmpty() ) {
-            throw new IllegalArgumentException("userName cannot be empty");
+            throw new IllegalArgumentException("사용자 이름을 입력하세요. ");
         }
         if( userDto.getPassword() == null || userDto.getPassword().isEmpty() ) {
-            throw new IllegalArgumentException("password cannot be empty");
+            throw new IllegalArgumentException("비밀번호를 입력하세요.");
         }
 
         // 입력받은 주소 키워드로 실제 주소 검색
