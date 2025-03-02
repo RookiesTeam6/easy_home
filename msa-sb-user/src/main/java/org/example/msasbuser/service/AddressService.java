@@ -44,9 +44,9 @@ public class AddressService {
             // "results" 객체에서 "juso" 배열 추출
             JsonNode jusoArray = root.path("results").path("juso");
 
-            // 검색된 주소가 존재하면 첫 번째 주소의 도로명주소(roadAddr) 반환
+            // 검색된 주소가 존재하면 첫 번째 주소의 도로명주소(roadAddrPart2) 반환
             if (jusoArray.isArray() && jusoArray.size() > 0) {
-                return jusoArray.get(0).path("roadAddr").asText();
+                return jusoArray.get(0).path("roadAddrPart2").asText();
             }
         } catch (Exception e) {
             e.printStackTrace();
